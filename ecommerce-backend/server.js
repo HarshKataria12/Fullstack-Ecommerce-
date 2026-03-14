@@ -2,11 +2,15 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const pool = require('./db'); 
-
+const userRoutes = require('./routes/userRoutes');
+// Import routes
+const productRoutes = require('./routes/productRoutes');
 const app = express();
 
 app.use(cors());
 app.use(express.json()); 
+app.use('/api/products', productRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
   res.send('E-commerce MySQL API is running!');

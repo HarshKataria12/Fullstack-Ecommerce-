@@ -1,33 +1,51 @@
 // controllers/productController.js
 const pool = require('../db');
 
-// Get all products
-exports.getAllProducts = async (req, res) => {
+// @desc    Fetch all products
+// @route   GET /api/products
+const getProducts = async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM products');
-        res.json(rows);
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' });
+        const [products] = await pool.query('SELECT * FROM Products');
+        res.json(products);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
     }
 };
-// create a new product
-exports.createProduct = async (req, res) => {
+
+// @desc    Fetch single product by ID
+// @route   GET /api/products/:id
+const getProductById = async (req, res) => {
+    try {
+        const [product] = await pool.query('SELECT * FROM Products WHERE id = ?', [req.params.id]);
+        
+        if (product.length === 0) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        
+        res.json(product[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Create a product
+// @route   POST /api/products
+const createProduct = async (req, res) => {
     const { name, description, price, stock_quantity, image_url } = req.body;
+
     try {
         const [result] = await pool.query(
             'INSERT INTO Products (name, description, price, stock_quantity, image_url) VALUES (?, ?, ?, ?, ?)',
             [name, description, price, stock_quantity, image_url]
         );
-        res.status(201).json({ id: result.insertId, name, description, price, stock });
+        res.status(201).json({ message: 'Product created successfully', productId: result.insertId });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
     }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-};  
-module.exports = {
-    getAllProducts: exports.getAllProducts,
-    createProduct: exports.createProduct
 };
+
+// The magical line that hands these functions over to the router!
+module.exports = { getProducts, getProductById, createProduct };

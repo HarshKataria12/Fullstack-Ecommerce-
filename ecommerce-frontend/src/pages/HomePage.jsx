@@ -1,10 +1,13 @@
 // src/pages/HomePage.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { CartContext } from '../context/CartContext';
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -37,18 +40,23 @@ const HomePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((product) => (
             <div key={product.id} className="border p-4 rounded-xl shadow-sm hover:shadow-lg transition duration-300 bg-white flex flex-col">
-              <img 
-                src={product.image_url || 'https://via.placeholder.com/300'} 
-                alt={product.name} 
-                className="w-full h-48 object-cover mb-4 rounded-lg" 
-              />
-              <h2 className="text-lg font-bold text-gray-800 truncate">{product.name}</h2>
+              <Link to={`/product/${product.id}`}>
+                <img 
+                  src={product.image_url || 'https://via.placeholder.com/300'} 
+                  alt={product.name} 
+                  className="w-full h-48 object-cover mb-4 rounded-lg" 
+                />
+                <h2 className="text-lg font-bold text-gray-800 truncate hover:text-blue-600 transition">{product.name}</h2>
+              </Link>
               <p className="text-gray-500 text-sm mb-4 line-clamp-2 flex-grow">{product.description}</p>
               <div className="flex justify-between items-center mt-auto">
                 <span className="text-xl font-extrabold text-blue-600">${product.price}</span>
-                <button className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
-                  Add to Cart
-                </button>
+                  <button 
+                    onClick={() => addToCart(product)}
+                    className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+                  >
+                    Add to Cart
+                  </button>
               </div>
             </div>
           ))}
